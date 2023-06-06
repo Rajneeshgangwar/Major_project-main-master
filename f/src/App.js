@@ -10,6 +10,8 @@ import Login from './Pages/Login';
 import Logout from './Components/Logout';
 import Otp from './Components/Otp';
 import Edit from './Pages/Edit';
+import NotificationPopUp from './Components/NotificationPopUp';
+import Donorlist from './Components/Donorlist';
 import Registration from './Components/Registration';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import '../node_modules/bootstrap/dist/js/bootstrap.js';
@@ -18,6 +20,7 @@ import { initialState, reducer} from "./reducer/UseReducer";
 
 
 import Dashboard from './Components/Dashboard';
+import NearByUsers from './Components/NearByUsers';
 
 export const UserContext = createContext();
 const Routing = () =>{
@@ -62,6 +65,10 @@ const Routing = () =>{
         <Route path='/registration' element={<Registration />}></Route>
         <Route path='/edit/:id' element={<Edit />}></Route>
         <Route path='/otp' element={<Otp />}></Route>
+        <Route path='/donor_list' element={<NotificationPopUp />}></Route>
+        
+        <Route path='/list' element={<Donorlist />}></Route>
+        <Route path='/nearby_users' element={<NearByUsers />}></Route>
        
       </Routes>
       

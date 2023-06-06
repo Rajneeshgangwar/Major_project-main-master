@@ -10,14 +10,10 @@ const Worker = require("../model/userSchema");
 const moment = require('moment');
 const nodemailer = require('nodemailer');
 const Hospital = require("../model/hospitalSchema");
-
-
-// const {getCurrentPosition}=require('navigator.geolocation');
+const Notification = require("../model/notification");
 
 const multer = require('multer');
 
-// image upload routes
-// image storage path
 
 const imageconfig = multer.diskStorage({
     destination: (req, file, callback) => {
@@ -53,11 +49,14 @@ var ex;
 var PINCODE;
 var _name;
 var lat, lng;
+var bloodGroup;
+var latitude;
+var longitude;
 router.post('/login', async (req, res) => {
     ex = req.body.email;
     some1 = ex;
     const res1 = await User.find({ email: ex });
-    // ex = res1[0].pincode;
+    ex = res1[0].pincode;
     try {
         let token;
         const { email, password } = req.body;
@@ -85,8 +84,12 @@ router.post('/login', async (req, res) => {
                 PINCODE = ex;
                 ex = some1;
                 _name = userLogin.name;
+                bloodGroup=userLogin.blood_group;
+                latitude=userLogin.location.coordinates[1];
+                longitude=userLogin.location.coordinates[0];
                 res.json({ message: "User Login Successfully" });
                 console.log("successfull login");
+               
             }
         }
         else {
@@ -110,17 +113,152 @@ router.post('/hospital_list', async (req, res) => {
 
 });
 
+router.post('/accept_noti', async (req, res) => {
+    const temp = await User.find({ email: ex });
+     console.log(req.body.e);
+    
+    let mailTranporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: "switch.case7105@gmail.com",
+            pass: "pqocmgyrvhculjen"
+
+        }
+    })
+   
+    let details = {
+        from: "switch.case7105@gmail.com",
+        to: req.body.e,
+        subject: "Donor Confirmmation",
+        text: temp[0].name + " accept your  request for Blood Donation"
+    }
+
+    //one_time_password = otp;
+
+    email_validation = () => {
+        mailTranporter.sendMail(details, (err) => {
+            if (err) {
+                console.log("it has an error", err);
+            }
+            else {
+                console.log("email has sent!");
+            }
+
+        })
+    }
+    email_validation();
+
+
+    res.send(temp[0]);
+});
+
+
+router.get('/show_noti', async (req, res) => {
+    const temp = await User.find({ email: ex });
+
+    res.send(temp[0]);
+});
+
+
+
+
+router.post('/clear_noti', async (req, res) => {
+    // 
+    // console.log(req.body.e);
+    const hello = await User.find({ email: req.body.e });
+    // console.log(hello[0].email);
+    // for(var j=0;j<userExist[0].data.length;j++){
+    await User.findOneAndUpdate({
+        email: ex
+    }, {
+        $pull: {
+            data: {
+                email: hello[0].email
+            }
+        }
+    }
+    )
+    res.send("findResult");
+});
+
+
+
+router.get('/list_show', async (req, res) => {
+    const list_show = [];
+    for (var j = 0; j < filter_data.length; j++) {
+        const temp = await User.find({ email: filter_data[j] });
+        list_show.push(temp);
+    }
+    // console.log(list_show);
+    res.send(list_show);
+});
+
+
+
 const filter_data = [];
 router.post('/donor_list', async (req, res) => {
-
+    console.log("ka ho ka haal ba");
+    const donor_detail = await User.find({ email: ex });
+    console.log(donor_detail);
+    let date1 = donor_detail[0].date.toISOString().substring(0, 10);
+    let date2 = new Date();
+    let _date2 = date2.toISOString().substring(0, 10);
+    console.log(date1);
+    console.log(_date2);
+    let timeDifference = Math.abs(new Date(_date2).getTime() - new Date(date1).getTime());
+    let days_difference = timeDifference / (1000 * 3600 * 24);
+    console.log(days_difference);
+    // console.log(date.getDay());
+    // console.log(date);
+    // console.log(req.body._Blood_Group);
+    // console.log(req.body._city);
+    // console.log(PINCODE);
+    var flag = 1;
     let findResult = await User.find({
     });
     filter_data.length = 0;
-    //   console.log(findResult[0].district);
     for (var j = 0; j < findResult.length; j++) {
+    
         if (findResult[j].blood_group === req.body._Blood_Group && findResult[j].district === req.body._city && findResult[j].pincode === PINCODE) {
-            if (findResult[j].email != ex)
+            if (findResult[j].email != ex) {
+                // console.log("hello");
                 filter_data.push(findResult[j].email);
+                const mm = await User.find({ email: findResult[j].email });
+
+                for (var l = 0; l < mm[0].data.length; l++) {
+                    // console.log(mm[0].data[l]);
+                    // console.log(mm[0].data[l].email);
+                    if (mm[0].data[l].email === ex)
+                        flag = 0;
+                }
+                if (flag) {
+                    await User.findOneAndUpdate({
+                        email: findResult[j].email
+                    }, {
+                        $push: {
+                            data: {
+                                name: donor_detail[0].name,
+                                email: donor_detail[0].email,
+                                phone_number: donor_detail[0].phone,
+                                age: donor_detail[0].age,
+                                address: donor_detail[0].address,
+                                district: donor_detail[0].district,
+                                pincode: donor_detail[0].pincode,
+                                state: donor_detail[0].state,
+                                gender: donor_detail[0].gender,
+                                blood_group: donor_detail[0].blood_group
+                            }
+                        }
+                    }
+
+
+                    )
+                }
+                flag = 1;
+                // const res1 = await User.find({email : findResult[j].email});
+                // console.log(res1[0].data);
+            }
+
         }
 
     }
@@ -137,6 +275,7 @@ router.post('/donor_list', async (req, res) => {
         one_time_password = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
         let details = {
             from: "switch.case7105@gmail.com",
+            to: "aaaa@gmail.com",
             to: filter_data[j],
             subject: "Receiver Request",
             text: _name + " has sent you a request for Blood Donation"
@@ -158,6 +297,7 @@ router.post('/donor_list', async (req, res) => {
         email_validation();
     }
     res.send(req.body);
+
 
 });
 router.get('/about', authenticate, (req, res) => {
@@ -187,22 +327,8 @@ router.patch('/edit/:id', (req, res, next) => {
         })
 })
 
-// find nearby users using location
-
-// async function getUserLocation() {
-//     const position = await getCurrentPosition();
-//     const latitude = position.coords.latitude;
-//     const longitude = position.coords.longitude;
-  
-//     return {
-//       latitude,
-//       longitude,
-//     };
-//   }
 
 router.post("/nearbyusers", async (req, res) => {
-
-   
 
     const latitude = req.body.latitude;
     const longitude = req.body.longitude;
@@ -210,32 +336,98 @@ router.post("/nearbyusers", async (req, res) => {
     // Convert latitude and longitude to numbers
     const targetLatitude = parseFloat(latitude);
     const targetLongitude = parseFloat(longitude);
-  
+
 
     if (isNaN(targetLatitude) || isNaN(targetLongitude)) {
         return res.status(400).json({ error: 'Invalid latitude or longitude' });
     }
 
-
-
     const users = await User.find({
         location: {
             $near: {
-              $geometry: {
-                type: 'Point',
-                coordinates: [targetLongitude, targetLatitude]
-              },
-              $maxDistance: 500 * 1609.34 // Convert maxDistance to meters
+                $geometry: {
+                    type: 'Point',
+                    coordinates: [targetLongitude, targetLatitude]
+                },
+                $maxDistance: 500 * 1609.34 // Convert maxDistance to meters
             }
-          }
+        }
     });
-    
-    // console.log(users);
+
+     const list=[];
+     for(var i=0;i<users.length;i++){
+          if(users[i].blood_group==bloodGroup && users[i].email!==ex){
+              list.push(users[i].email);
+          }
+     }
+     console.log(list.length);
+     for (var j = 0; j < list.length; j++) {
+        let mailTranporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "switch.case7105@gmail.com",
+                pass: "pqocmgyrvhculjen"
+
+            }
+        })
+        // one_time_password = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+        let details = {
+            from: "switch.case7105@gmail.com",
+           
+            to: list[j],
+            subject: "Receiver Request",
+            text: _name + " has sent you a request for Blood Donation"
+        }
+
+        //one_time_password = otp;
+
+        email_validation = () => {
+            mailTranporter.sendMail(details, (err) => {
+                if (err) {
+                    console.log("it has an error", err);
+                }
+                else {
+                    console.log("email has sent!");
+                }
+
+            })
+        }
+        email_validation();
+    }
+     console.log(list);
     res.json(users);
 
 });
 
+router.post('/map',async (req,res)=>{
+      
+    // const latitude = req.body.latitude;
+    // const longitude = req.body.longitude;
 
+    // Convert latitude and longitude to numbers
+    const targetLatitude = parseFloat(latitude);
+    const targetLongitude = parseFloat(longitude);
+
+    console.log('map Call');
+
+
+    if (isNaN(targetLatitude) || isNaN(targetLongitude)) {
+        return res.status(400).json({ error: 'Invalid latitude or longitude' });
+    }
+
+    const mapUsers = await User.find({
+        location: {
+            $near: {
+                $geometry: {
+                    type: 'Point',
+                    coordinates: [targetLongitude, targetLatitude]
+                },
+                $maxDistance: 500 * 1609.34 // Convert maxDistance to meters
+            }
+        }
+    });
+    res.send(mapUsers);
+});
 
 
 router.get('/getdata', authenticate, (req, res) => {
@@ -256,9 +448,6 @@ router.get('/dashboard', authenticate, (req, res) => {
     const getcall = async () => {
         try {
             result = await Worker.find({ email: id }).countDocuments();
-            //  s_no= await MGNREGA.Worker.countDocuments();
-
-
 
 
         } catch (err) {
@@ -266,7 +455,6 @@ router.get('/dashboard', authenticate, (req, res) => {
         }
     }
     getcall();
-    //res.json({ message:"user signin success" });
 
     Worker.count(function (err, countData) {
         s_no = countData;
@@ -290,9 +478,6 @@ router.post('/signup', upload.single("photo"), async (req, res) => {
 
     const targetLatitude = parseFloat(latitude);
     const targetLongitude = parseFloat(longitude);
-
-
-
 
     if (!filename || !name || !email || !password || !cpassword || !phone_number || !age || !address || !district || !pincode || !state || !gender
         || !blood_group || !latitude || !longitude) {

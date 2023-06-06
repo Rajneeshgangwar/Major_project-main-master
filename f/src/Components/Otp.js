@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 // import {FiUserPlus} from 'react-icons/fi';
 // import {RiLockPasswordLine,RiLockPasswordFill} from 'react-icons/ri';
 import {useNavigate} from 'react-router-dom';
-
+import './Otp.css'
 
 
 // import img1 from './images/loginman.png';
@@ -85,11 +85,17 @@ const PostData = async (e) => {
 //   setUserid({  otp:"" });
 // }
   return (
-    <div>
+    <div className='otp-box'>
       <div className="container">
        
         <div className="row justify-content-center">
             <div className="col-sm-8 col-sm-offset-2 form-box">
+            <h1>Validate OTP</h1>
+            <div className='form-top'>
+              <h5>A verification code will be send to the email address you provide:</h5>
+              </div>
+            </div>
+      </div>
                 {/* <div className="form-top">
                   <div className="form-top-left">
                       <h3>Blood Bank Login : Portal</h3>
@@ -97,27 +103,26 @@ const PostData = async (e) => {
                   </div>
                   
                 </div>   */}
+          <div className="row justify-content-center">
+          <div className="col-sm-5 col-sm-offset-2 form-box">
             <div className="form-bottom">
                  <form onSubmit={PostData} method="POST">
-
                  <div className="form-group row">
-                 <label className="p-0">OTP</label>
                  <input type="text" className="form-control" placeholder="Enter OTP"
                   name="otp"
                   value={user.otp}
               required onChange={handleInputs}/>
                  </div>
                  <center>
-                 <button tabindex="4" type="submit" className="btn btn-default">Login</button></center>
+                 <button type="submit" className="btn-default">Login</button></center>
            
 
          
        </form>
-      </div>
-      </div>
+       </div>
+      </div> 
       </div>
     </div>
-    
-  </div>
+    </div>
   )
 }

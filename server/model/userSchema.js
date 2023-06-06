@@ -61,6 +61,41 @@ const userSchema =new mongoose.Schema({
         type: { type: String, enum: ['Point'], required: true },
         coordinates: { type: [Number], required: true },
     },
+    data:[{
+        name:{
+            type: String
+        },
+        email:{
+            type:String
+        },
+        phone_number:{
+            type:String
+        },
+        age:{
+            type:String
+        },
+        address:{
+            type:String
+        },
+        district:{
+            type:String
+        },
+        pincode:{
+            type:String
+        },
+        state:{
+            type:String
+        },
+        gender:{
+            type:String
+        },
+        blood_group:{
+            type:String
+        }
+       
+    } 
+    ],
+    date: {type: Date, default: Date.now},
     tokens:[
         {
             token:{
@@ -94,6 +129,6 @@ userSchema.methods.generateAuthToken= async function(){
         console.log(err);
     }
 }
-userSchema.index({location:"2dsphere"});
+userSchema.index({ location: '2dsphere' });
 const User=mongoose.model('USER',userSchema);
 module.exports=User;

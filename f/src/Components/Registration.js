@@ -18,6 +18,8 @@ function Registration() {
   const [latitude,setLatitude]=useState("");
   const [longitude,setLongitude]=useState("");
 
+  // this is for the current location of the user
+
   const getLocation=()=>{
  
     if(navigator.geolocation){
@@ -111,11 +113,7 @@ useEffect(() => {
       history("/otp");
 
     }
-    // }
-    // else{
-    //   window.alert("Invalid adhar");
-    // }
-    //////////////////////////////////// adhar validation
+
 
   }
 
@@ -124,8 +122,7 @@ useEffect(() => {
     <>
 
       <div className="reg-form">
-        {" "}
-        {/* {login ? ( */}
+      
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-sm-8 col-sm-offset-2 text">

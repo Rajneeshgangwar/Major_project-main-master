@@ -44,7 +44,7 @@ function Map(props) {
         lng:longitude
       })
 
-      const response = await fetch(`/nearbyusers`, {
+      const response = await fetch(`/map`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,44 +82,13 @@ function Map(props) {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
   })
 
-  
-
- 
-
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(position => {
-  //       setLocation({
-  //         lat: position.coords.latitude,
-  //         lng: position.coords.longitude
-  //       });
-  //     });
-  //   }
-  // }, []);
 
 
   const [map, setMap] = React.useState(null)
-
-  // const onLoad = React.useCallback(function callback(map) {
-
-  //   const bounds = new window.google.maps.LatLngBounds(center);
-  //   map.fitBounds(bounds);
-
-  //   setMap(map)
-  // }, [])
-
-
-  // const onUnmount = React.useCallback(function callback(map) {
-  //   setMap(null)
-  // }, [])
-
+ 
   const onLoad = map => {
     setMap(map);
   };
-
-
-
-
 
   return isLoaded ? (
 
@@ -146,8 +115,6 @@ function Map(props) {
       ))}
 
     </GoogleMap>
-    
-
 
   ) : <></>
 }
